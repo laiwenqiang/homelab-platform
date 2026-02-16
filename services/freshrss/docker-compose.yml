@@ -1,0 +1,42 @@
+services:
+  db:
+    image: postgres:16
+    container_name: freshrss-db
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      TZ: ${TZ}
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    restart: unless-stopped
+
+  freshrss:
+    image: freshrss/freshrss:latest
+    container_name: freshrss
+    depends_on:
+      - db
+    environment:
+      TZ: ${TZ}
+      CRON_MIN: "*/20"
+      # Database
+      DB_TYPE: pgsql
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_BASE: ${POSTGRES_DB}
+      DB_USER: ${POSTGRES_USER}
+      DB_PASSWORD: ${POSTGRES_PASSWORD}
+      # Optional admin bootstrap
+      ADMIN_USER: ${FRESHRSS_ADMIN_USER}
+      ADMIN_PASSWORD: ${FRESHRSS_ADMIN_PASSWORD}
+    volumes:
+      - freshrss_data:/var/www/FreshRSS/data
+      - freshrss_extensions:/var/www/FreshRSS/extensions
+    ports:
+      - "8080:80"
+    restart: unless-stopped
+
+volumes:
+  db_data:
+  freshrss_data:
+  freshrss_extensions:

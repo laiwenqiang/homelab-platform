@@ -1,0 +1,22 @@
+# env & secrets
+.env
+*.env
+.env.*
+secrets.*
+*secret*
+*.key
+*.pem
+
+# local
+.DS_Store
+.idea/
+.vscode/
+
+# logs
+*.log
+
+# backups
+*.tar
+*.tgz
+*.zip
+*.bak
