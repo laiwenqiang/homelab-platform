@@ -3,7 +3,6 @@
 *.env
 .env.*
 secrets.*
-*secret*
 *.key
 *.pem
 
