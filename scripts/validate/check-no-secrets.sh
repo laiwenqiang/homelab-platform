@@ -12,9 +12,9 @@ PATTERNS=(
 
 FAILED=0
 for p in "${PATTERNS[@]}"; do
-  if git grep -n "$p" -- . ':!**/.env.example' ':!**/secrets.example.md' >/dev/null 2>&1; then
+  if git grep -n "$p" -- . ':!check-no-secrets.sh' ':!**/.env.example' ':!**/secrets.example.md' >/dev/null 2>&1; then
     echo "[fail] found pattern: $p"
-    git grep -n "$p" -- . ':!**/.env.example' ':!**/secrets.example.md' || true
+    git grep -n "$p" -- . ':!check-no-secrets.sh'  ':!**/.env.example' ':!**/secrets.example.md' || true
     FAILED=1
   fi
 done
