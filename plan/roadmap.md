@@ -7,7 +7,7 @@
 
 ## M1（1-2 周）
 - tools 区：反代入口
-- FreshRSS 上线
+- TrendRadar 上线
 - LobeChat LXC 上线
 
 ## M2（2-4 周）

@@ -2,7 +2,7 @@
 
 > 目标：把 homelab 按“小公司生产环境”的方式组织，让系统**可复现、可隔离、可恢复、可迭代**。  
 > 基座：单机 PVE（Lenovo P3 Tiny：i7-13700T / 32GB RAM / 1TB NVMe）。  
-> 日常工具：FreshRSS（Compose）、LobeChat（LXC）。  
+> 日常工具：TrendRadar（Compose）、LobeChat（LXC）。
 > 学习栈：K8s（k3s）+ GitOps + 可观测。  
 > 高风险 AI：OpenClaw 独立 VM 隔离。
 
@@ -63,7 +63,7 @@
 
 ### 3.1 网段与角色（建议，最终以 docs/02-network.md 为准）
 - **mgmt**：PVE 管理、SSH 管理、仅管理终端可达
-- **tools**：FreshRSS、LobeChat、反代入口等日常服务
+- **tools**：TrendRadar、LobeChat、反代入口等日常服务
 - **lab**：K8s（k3s）集群与学习用服务
 - **ai**：OpenClaw（以及可选模型服务），对 mgmt 默认禁止
 
@@ -89,21 +89,30 @@
 > 资源分配的具体数值见对应 `[infra] VM/LXC 资源分配规划（v1）` Issue 与 inventory 台账。
 
 ### 4.1 必选组件（v1）
-- **pve-01（宿主）**：只跑虚拟化与存储/备份调度
-- **vm-k8s-01（VM, lab）**：k3s 单节点（学习/观测/部分基础组件）
-- **vm-tools-01（VM 或 LXC, tools）**：FreshRSS（Docker Compose）+（可选）反代
-- **lxc-lobechat-01（LXC, tools）**：LobeChat（稳定日用）
-- **vm-openwrt-01（VM）**：实验路由（仅实验网段，不影响主网）
-- **vm-openclaw-01（VM, ai）**：OpenClaw 隔离运行
 
-### 4.2 可选组件（按资源/复杂度决定）
-- **vm-observ-01（VM）**：如果不想把观测栈放 K8s，可独立部署（维护更直观）
-- **vm-model-01（VM）**：模型服务独立（当推理负载变高或要更强隔离时）
+| 名称 | 类型 | 网段 | IP | 角色 | vCPU | RAM | Disk |
+|------|------|------|----|------|-----:|----:|-----:|
+| pve-01 | host | mgmt | 192.168.5.10 | 宿主机 | 2★ | 4GB★ | — |
+| lxc-nginx-01 | LXC | tools | 192.168.5.20 | 反向代理 | 1 | 512MB | 8GB |
+| lxc-adguard-01 | LXC | tools | 192.168.5.21 | DNS/AdGuard | 1 | 512MB | 8GB |
+| lxc-monitor-01 | LXC | tools | 192.168.5.22 | Prometheus + Grafana | 2 | 2GB | 30GB |
+| lxc-logging-01 | LXC | tools | 192.168.5.23 | Loki | 2 | 2GB | 30GB |
+| lxc-trendradar-01 | LXC | tools | 192.168.5.31 | TrendRadar | 2 | 2GB | 30GB |
+| lxc-lobechat-01 | LXC | tools | 192.168.5.32 | LobeChat | 2 | 3GB | 20GB |
+| vm-k8s-01 | VM | lab | 192.168.5.50 | k3s 单节点（学习/GitOps） | 6 | 8GB | 100GB |
+| vm-openclaw-01 | VM | ai | 192.168.5.81 | OpenClaw（隔离） | 4 | 6GB | 80GB |
+
+> ★ 宿主机保留，不计入 Guest 分配。必选 RAM 合计 24GB，在 26GB 上限内。
+
+### 4.2 可选组件（按需部署）
+- **vm-openwrt-01（VM, tools, .30）**：实验路由，仅网络实验时创建
+- **vm-model-01（VM, ai, .80）**：Ollama 模型服务，与 vm-openclaw-01 不可同时满载，默认关机
 
 ### 4.3 放置策略（为什么这么放）
-- **LobeChat 放 LXC**：日常访问高频，要求稳定、快照回滚简单、维护成本低
-- **FreshRSS 用 Compose**：依赖 DB/卷，Compose 足够稳定；日常工具不绑 K8s
-- **K8s 单独 VM**：学习环境允许推倒重来；把“学习复杂度”隔离在 lab
+- **可观测栈放 tools 区独立 LXC**：与日常工具同等稳定性要求，维护更直观，不依赖 K8s 可用性
+- **LobeChat 放 LXC**：日常访问高频，快照回滚简单，维护成本低
+- **TrendRadar 用 Compose**：依赖 DB/卷，Compose 足够稳定；日常工具不绑 K8s
+- **K8s 单独 VM**：学习环境允许推倒重来；把”学习复杂度”隔离在 lab
 - **OpenClaw 独立 VM**：可执行型 Agent 高风险，边界必须清晰，可一键断网/回滚
 
 
@@ -136,7 +145,7 @@
 ### 6.1 数据分类
 - 配置类（Git）：本仓库文件（docs、compose、manifests、台账）
 - 服务状态类：
-  - FreshRSS：Postgres 数据卷 + FreshRSS data/extensions
+  - TrendRadar：Postgres 数据卷 + TrendRadar data/extensions
   - LobeChat：依赖的数据目录/DB（按你的部署方式确定）
   - K8s：关键 PV（如果有），以及 GitOps 仓库为主
 - AI/模型类：
@@ -167,7 +176,7 @@
 
 ### v1（当前）
 - PVE 基座 + 网络分区初版
-- tools：FreshRSS（Compose）、LobeChat（LXC）
+- tools：TrendRadar（Compose）、LobeChat（LXC）
 - lab：k3s 单节点（学习 + 观测）
 - ai：OpenClaw 独立 VM
 

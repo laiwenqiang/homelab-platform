@@ -10,7 +10,7 @@ homelab-platform
 ## 当前约束/决策（摘要）
 - 虚拟化基座：PVE
 - 日常工具：
-  - FreshRSS：Docker Compose 部署（运行在工具区 VM/LXC 里）
+  - TrendRadar：Docker Compose 部署（运行在工具区 VM/LXC 里）
   - LobeChat：运行在 LXC（不进 K8s）
 - 高风险/可执行型 AI（如 OpenClaw）：独立 VM 隔离（见 ADR）
 
