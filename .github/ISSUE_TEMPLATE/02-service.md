@@ -1,6 +1,6 @@
 ---
 name: Service
-about: 部署/升级/迁移某个服务（FreshRSS、LobeChat 等）
+about: 部署/升级/迁移某个服务（TrendRadar、LobeChat 等）
 title: "[service] "
 labels: ["type:service"]
 ---

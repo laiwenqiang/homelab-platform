@@ -10,21 +10,22 @@ homelab-platform
 ## 当前约束/决策（摘要）
 - 虚拟化基座：PVE
 - 日常工具：
-  - FreshRSS：Docker Compose 部署（运行在工具区 VM/LXC 里）
+  - TrendRadar：Docker Compose 部署（运行在工具区 VM/LXC 里）
   - LobeChat：运行在 LXC（不进 K8s）
 - 高风险/可执行型 AI（如 OpenClaw）：独立 VM 隔离（见 ADR）
 
 ## 快速导航
-- 概览：docs/00-overview.md
-- 架构：docs/01-architecture.md
-- 网络：docs/02-network.md
-- 存储与备份：docs/03-storage-backup.md
-- 安全：docs/04-security.md
-- ADR：docs/06-decisions/
-- Runbooks：docs/05-runbooks/
-- 服务清单：inventory/services.md
-- 规划：plan/roadmap.md、plan/milestones.md
+- 概览：[docs/00-overview.md](docs/00-overview.md)
+- 架构：[docs/01-architecture.md](docs/01-architecture.md)
+- 网络：[docs/02-network.md](docs/02-network.md)
+- 存储与备份：[docs/03-storage-backup.md](docs/03-storage-backup.md)
+- 安全：[docs/04-security.md](docs/04-security.md)
+- ADR：[docs/06-decisions/](docs/06-decisions/)
+- Runbooks：[docs/05-runbooks/](docs/05-runbooks/)
+- 服务清单：[inventory/services.md](inventory/services.md)
+- 规划：[plan/roadmap.md](plan/roadmap.md)、[plan/milestones.md](plan/milestones.md)
 
+![网络图](docs/homelab-net.jpg)
 ## 工作方式
 1. 开 Issue（写清楚目标、验收、风险、回滚）
 2. 建分支 -> 提交变更 -> 提 PR
