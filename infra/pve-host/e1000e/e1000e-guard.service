@@ -1,0 +1,13 @@
+[Unit]
+Description=e1000e NIC Guard - disable EEE/offloading + watchdog auto-recovery
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+ExecStart=/usr/local/bin/e1000e-watchdog.sh eno1 192.168.5.1
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
