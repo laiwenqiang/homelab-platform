@@ -37,10 +37,12 @@ apply_hardening() {
         log "WARNING: Failed to disable EEE on $nic (may not be supported)"
     fi
 
-    # Disable NIC offloading (TSO/GSO/GRO + TX/RX offload)
-    ethtool -K "$nic" tso off gso off gro off 2>/dev/null && \
-        log "TSO/GSO/GRO offloading disabled on $nic" || \
+    # Disable NIC offloading (TSO/GSO/GRO)
+    if ethtool -K "$nic" tso off gso off gro off 2>/dev/null; then
+        log "TSO/GSO/GRO offloading disabled on $nic"
+    else
         log "WARNING: Failed to disable some offloading features on $nic"
+    fi
 }
 
 # --- Phase 2: Watchdog loop ---
