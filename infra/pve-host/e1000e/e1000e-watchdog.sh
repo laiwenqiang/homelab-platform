@@ -16,8 +16,9 @@
 
 set -euo pipefail
 
-NIC="${1:-eno1}"
-PING_TARGET="${2:-192.168.5.1}"
+NIC="${1:-enp0s31f6}"
+PING_IFACE="${2:-$NIC}"
+GATEWAY="${3:-192.168.5.1}"
 CHECK_INTERVAL=30
 FAIL_THRESHOLD=3
 LOG_TAG="e1000e-guard"
@@ -48,12 +49,13 @@ apply_hardening() {
 # --- Phase 2: Watchdog loop ---
 watchdog() {
     local nic="$1"
-    local target="$2"
+    local ping_iface="$2"
+    local gateway="$3"
 
     while true; do
-        if ! ping -c 1 -W 2 -I "$nic" "$target" &>/dev/null; then
+        if ! ping -c 1 -W 2 -I "$ping_iface" "$gateway" &>/dev/null; then
             fail_count=$((fail_count + 1))
-            log "WARNING: $nic ping to $target failed ($fail_count/$FAIL_THRESHOLD)"
+            log "WARNING: $nic ping via $ping_iface to $gateway failed ($fail_count/$FAIL_THRESHOLD)"
 
             if [ "$fail_count" -ge "$FAIL_THRESHOLD" ]; then
                 log "CRITICAL: $nic appears hung, initiating reset"
@@ -73,7 +75,7 @@ watchdog() {
 }
 
 # --- Main ---
-log "Starting e1000e-guard for $NIC (gateway: $PING_TARGET, interval: ${CHECK_INTERVAL}s, threshold: $FAIL_THRESHOLD)"
+log "Starting e1000e-guard for $NIC (ping iface: $PING_IFACE, gateway: $GATEWAY, interval: ${CHECK_INTERVAL}s, threshold: $FAIL_THRESHOLD)"
 apply_hardening "$NIC"
 log "Initial hardening applied, entering watchdog mode"
-watchdog "$NIC" "$PING_TARGET"
+watchdog "$NIC" "$PING_IFACE" "$GATEWAY"

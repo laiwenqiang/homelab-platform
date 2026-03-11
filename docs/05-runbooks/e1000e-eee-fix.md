@@ -22,6 +22,9 @@ chmod +x /usr/local/bin/e1000e-watchdog.sh
 # 复制 service 文件
 cp infra/pve-host/e1000e/e1000e-guard.service /etc/systemd/system/
 
+# 如需按当前宿主机接口名调整：
+# ExecStart=/usr/local/bin/e1000e-watchdog.sh enp0s31f6 vmbr0 192.168.5.1
+
 # 启用并启动
 systemctl daemon-reload
 systemctl enable --now e1000e-guard.service
@@ -39,11 +42,11 @@ journalctl -t e1000e-guard --no-pager -n 10
 # 期望：看到 "EEE disabled" + "TSO/GSO/GRO offloading disabled" + "entering watchdog mode"
 
 # 确认 EEE 已关闭
-ethtool --show-eee eno1
+ethtool --show-eee enp0s31f6
 # 期望：EEE status: disabled
 
 # 确认 offloading 已关闭
-ethtool -k eno1 | grep -E "tcp-segmentation-offload|generic-segmentation-offload|generic-receive-offload"
+ethtool -k enp0s31f6 | grep -E "tcp-segmentation-offload|generic-segmentation-offload|generic-receive-offload"
 # 期望：均为 off
 ```
 
@@ -54,7 +57,7 @@ ethtool -k eno1 | grep -E "tcp-segmentation-offload|generic-segmentation-offload
 cp /etc/network/interfaces /etc/network/interfaces.bak.$(date +%Y%m%d)
 
 # 编辑文件，移除类似以下内容：
-# post-up /usr/sbin/ethtool --set-eee eno1 eee off
+# post-up /usr/sbin/ethtool --set-eee enp0s31f6 eee off
 vi /etc/network/interfaces
 ```
 
@@ -65,8 +68,8 @@ reboot
 
 # 重启后检查
 systemctl status e1000e-guard       # active (running)
-ethtool --show-eee eno1              # EEE disabled
-ethtool -k eno1 | grep offload       # 相关项均为 off
+ethtool --show-eee enp0s31f6         # EEE disabled
+ethtool -k enp0s31f6 | grep offload  # 相关项均为 off
 ```
 
 ## 日常运维
@@ -90,7 +93,7 @@ systemctl disable --now e1000e-guard
 
 # 2. 恢复旧配置
 cp /etc/network/interfaces.bak.* /etc/network/interfaces
-# 或手动添加：post-up /usr/sbin/ethtool --set-eee eno1 eee off
+# 或手动添加：post-up /usr/sbin/ethtool --set-eee enp0s31f6 eee off
 
 # 3. 重载网络
 ifreload -a
