@@ -68,7 +68,7 @@
 - **ai**：OpenClaw（以及可选模型服务），对 mgmt 默认禁止
 
 ### 3.2 访问控制（原则级）
-- tools -> lab：允许（访问 Grafana/ArgoCD 等）
+- tools -> lab：允许（访问 ArgoCD、抓取 lab 区观测目标等）
 - ai -> lab：**仅允许必要的目标与端口**（例如 K8s API/模型服务），其余禁止
 - ai -> mgmt：默认禁止
 - 外部访问：优先 VPN/Zero Trust；不直接端口映射 PVE 管理界面
@@ -78,7 +78,7 @@
 - 子域名：
   - `freshrss.tools.home`
   - `lobechat.tools.home`
-  - `grafana.lab.home`
+  - `grafana.tools.home`
   - `argocd.lab.home`
 - 原则：业务服务不直接暴露端口；统一走反代和访问控制
 
@@ -125,7 +125,7 @@
   - （后续）CI/CD：Gitea/GitLab + Runner
   - （后续）镜像仓库：Harbor 或轻量 registry
 
-### 5.2 可观测中心（lab）
+### 5.2 可观测中心（tools）
 - v1：Prometheus + Grafana
 - v1.1：Loki（日志）+ 告警通道（ntfy/Telegram）
 - v2：Tempo/Jaeger + OpenTelemetry（链路追踪）
