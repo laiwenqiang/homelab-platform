@@ -200,4 +200,5 @@
   - `docs/06-decisions/adr-0002-openclaw-isolation.md`
 - Runbooks：
   - `docs/05-runbooks/service-deploy-lxc.md`
+  - `docs/05-runbooks/monitoring-deploy.md`
   - `docs/05-runbooks/backup-restore-drill.md`

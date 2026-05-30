@@ -12,12 +12,14 @@
 
 ## 部署
 
+正式上线按 `docs/05-runbooks/monitoring-deploy.md` 执行；以下为服务目录内的快速步骤。
+
 1. 在 `lxc-monitor-01` 完成基线初始化并安装 Docker / Docker Compose。
 2. 进入本目录：
    - `cd services/monitoring`
 3. 设置 Grafana 初始管理员密码：
-   - `export GF_SECURITY_ADMIN_PASSWORD='<strong-password>'`
-   - 可选：`export GF_SECURITY_ADMIN_USER='admin'`
+   - 在本地 `.env` 中设置 `GF_SECURITY_ADMIN_PASSWORD`，不要提交到 Git。
+   - 可选：设置 `GF_SECURITY_ADMIN_USER`，默认值为 `admin`。
 4. 启动服务：
    - `docker compose up -d`
 5. 接入反代：
