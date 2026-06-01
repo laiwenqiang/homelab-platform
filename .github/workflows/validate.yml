@@ -10,5 +10,18 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Install yq
+        run: |
+          sudo wget -qO /usr/local/bin/yq https://github.com/mikefarah/yq/releases/download/v4.44.6/yq_linux_amd64
+          sudo chmod +x /usr/local/bin/yq
       - name: Run secret pattern check
         run: bash scripts/validate/check-no-secrets.sh
+      - name: Check shell syntax
+        run: |
+          bash -n scripts/lib/vm-cloudinit-config.sh
+          bash -n scripts/pve/create-cloudinit-vm.sh
+          bash -n scripts/validate/check-vm-cloudinit-config.sh
+      - name: Validate VM Cloud-Init example config
+        run: bash scripts/validate/check-vm-cloudinit-config.sh inventory/vms/examples/cloudinit-vm.example.yaml
+      - name: Dry-run VM Cloud-Init create script
+        run: bash scripts/pve/create-cloudinit-vm.sh --config inventory/vms/examples/cloudinit-vm.example.yaml
