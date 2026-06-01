@@ -1,0 +1,16 @@
+vm:
+  template_vmid: 9000
+  vmid: 1050
+  name: vm-example-01
+  storage: local-lvm
+  cores: 2
+  memory_mb: 2048
+  disk: 30G
+  network:
+    bridge: vmbr0
+    ip: 192.168.5.250/24
+    gateway: 192.168.5.1
+  cloudinit:
+    user: debian
+    ssh_public_key_file: inventory/vms/examples/example.pub
+  start: false
