@@ -9,6 +9,7 @@ services:
       - --storage.tsdb.wal-compression
     volumes:
       - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./prometheus/targets:/etc/prometheus/targets:ro
       - prometheus_data:/prometheus
     expose:
       - "9090"

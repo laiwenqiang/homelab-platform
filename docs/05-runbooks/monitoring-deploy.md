@@ -13,7 +13,9 @@
 - URL：`grafana.tools.home`
 - 代码目录：`services/monitoring/`
 
-本次不包含：Node Exporter、cAdvisor、Loki、Alertmanager、多主机 scrape target。
+本次包含：Prometheus/Grafana 基础栈、Prometheus self-scrape、通过 file_sd 管理的 node_exporter 多主机 scrape targets。
+
+本次不包含：node_exporter 自动安装与生命周期管理、cAdvisor、Loki、Alertmanager。
 
 ## PR 门禁
 
@@ -22,6 +24,7 @@ Monitor PR 必须保持 Draft，直到以下条件全部完成：
 - [ ] 在真实 `lxc-monitor-01` 上完成部署。
 - [ ] `docker compose config` 通过。
 - [ ] Prometheus self-scrape 正常。
+- [ ] node_exporter target 文件加载正常；已部署 exporter 的机器显示 `up=1`。
 - [ ] Grafana 能登录，Prometheus datasource 正常。
 - [ ] `grafana.tools.home` 可通过内网入口访问。
 - [ ] 重启 LXC 后服务自动恢复。
@@ -114,7 +117,74 @@ nano .env
 
 `.env` 不提交到 Git。
 
-### 3. 校验 Compose 配置
+### 3. 准备基础主机指标采集
+
+Prometheus 从 `prometheus/targets/node-exporter.yml` 加载 HomeLab 主机采集目标。每个目标默认监听 `9100/tcp`。
+
+Debian / PVE / Debian LXC / Debian VM 示例：
+
+```bash
+sudo apt update
+sudo apt install prometheus-node-exporter
+sudo systemctl enable --now prometheus-node-exporter
+sudo systemctl status prometheus-node-exporter
+```
+
+OpenWrt 23.05.x / x86_64 示例：
+
+1. 在管理机下载 Prometheus 官方 `node_exporter` `linux-amd64` release 包和 `sha256sums.txt`，校验 checksum 后解压。
+2. 上传静态二进制到 OpenWrt：
+
+```bash
+scp node_exporter root@192.168.5.30:/tmp/node_exporter
+```
+
+3. 在 OpenWrt 上安装并配置 procd 服务：
+
+```sh
+cp /tmp/node_exporter /usr/sbin/node_exporter
+chmod 0755 /usr/sbin/node_exporter
+cat >/etc/init.d/node_exporter <<'EOF'
+#!/bin/sh /etc/rc.common
+
+START=99
+STOP=10
+USE_PROCD=1
+
+start_service() {
+    procd_open_instance
+    procd_set_param command /usr/sbin/node_exporter --web.listen-address=:9100
+    procd_set_param respawn
+    procd_close_instance
+}
+EOF
+chmod 0755 /etc/init.d/node_exporter
+/etc/init.d/node_exporter enable
+/etc/init.d/node_exporter restart
+```
+
+安装后在被采集机器上验证：
+
+```bash
+curl -fsS http://localhost:9100/metrics >/dev/null
+```
+
+OpenWrt 可用：
+
+```sh
+wget -qO- http://127.0.0.1:9100/metrics >/dev/null
+ls -l /etc/rc.d/S99node_exporter
+```
+
+从 `lxc-monitor-01` 验证网络连通：
+
+```bash
+curl -fsS http://192.168.5.10:9100/metrics >/dev/null
+```
+
+防火墙应只允许 `192.168.5.22` 访问各机器的 `9100/tcp`。规划中但尚未创建、未开机或未安装 exporter 的机器会在 Prometheus targets 中显示为 `down`。
+
+### 4. 校验 Compose 配置
 
 ```bash
 docker compose config
@@ -122,7 +192,7 @@ docker compose config
 
 失败时不要启动服务，先修正配置或回滚。
 
-### 4. 启动服务
+### 5. 启动服务
 
 ```bash
 docker compose up -d
@@ -153,10 +223,11 @@ docker compose logs --tail=100 grafana
 
 ```bash
 docker compose exec prometheus promtool check config /etc/prometheus/prometheus.yml
-docker compose exec prometheus promtool query instant http://localhost:9090 up
+docker compose exec prometheus promtool query instant http://localhost:9090 'up{job="prometheus"}'
+docker compose exec prometheus promtool query instant http://localhost:9090 'up{job="node_exporter"}'
 ```
 
-预期：`up` 查询返回 Prometheus self-scrape 目标，值为 `1`。
+预期：Prometheus self-scrape 目标值为 `1`；已安装并连通 node_exporter 的 HomeLab 机器值为 `1`，尚未部署 exporter 的规划机器可暂时为 `0`。
 
 ### 3. Grafana 本机访问
 
@@ -271,6 +342,7 @@ pre-monitoring-v1
 - Snapshot: pre-monitoring-v1
 - Compose config: pass/fail
 - Prometheus self-scrape: pass/fail
+- Node exporter targets: pass/fail, list down targets if any
 - Grafana datasource: pass/fail
 - Domain/reverse proxy: pass/fail
 - Reboot recovery: pass/fail
