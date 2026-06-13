@@ -1,4 +1,4 @@
-#! bash
+#!/usr/bin/env bash
 set -euo pipefail
 
 echo "[check] scanning for common secret patterns..."

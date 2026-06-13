@@ -1,0 +1,87 @@
+- targets:
+    - 192.168.5.10:9100
+  labels:
+    instance: pve-01
+    zone: mgmt
+    role: hypervisor
+    type: bare-metal
+
+- targets:
+    - 192.168.5.20:9100
+  labels:
+    instance: lxc-nginx-01
+    zone: tools
+    role: reverse-proxy
+    type: lxc
+
+- targets:
+    - 192.168.5.21:9100
+  labels:
+    instance: lxc-adguard-01
+    zone: tools
+    role: dns
+    type: lxc
+
+- targets:
+    - 192.168.5.22:9100
+  labels:
+    instance: lxc-monitor-01
+    zone: tools
+    role: monitoring
+    type: lxc
+
+- targets:
+    - 192.168.5.23:9100
+  labels:
+    instance: lxc-logging-01
+    zone: tools
+    role: logging
+    type: lxc
+
+- targets:
+    - 192.168.5.30:9100
+  labels:
+    instance: vm-openwrt-01
+    zone: tools
+    role: router
+    type: vm
+
+- targets:
+    - 192.168.5.31:9100
+  labels:
+    instance: lxc-trendradar-01
+    zone: tools
+    role: news
+    type: lxc
+
+- targets:
+    - 192.168.5.32:9100
+  labels:
+    instance: lxc-lobechat-01
+    zone: tools
+    role: chat
+    type: lxc
+
+- targets:
+    - 192.168.5.50:9100
+  labels:
+    instance: vm-k8s-01
+    zone: lab
+    role: k3s
+    type: vm
+
+- targets:
+    - 192.168.5.80:9100
+  labels:
+    instance: vm-model-01
+    zone: ai
+    role: model
+    type: vm
+
+- targets:
+    - 192.168.5.81:9100
+  labels:
+    instance: vm-openclaw-01
+    zone: ai
+    role: ai-agent
+    type: vm
