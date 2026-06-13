@@ -71,8 +71,7 @@ Docker volume：
 
 Dashboard 约定：
 
-- `grafana/dashboards/homelab-node-overview.json` 提供 HomeLab 精简增强版主机指标概览，包括 target 状态、资源总览、主机信息、CPU、内存、文件系统、磁盘 I/O 和网络 I/O。
-- `grafana/dashboards/node-exporter-full-1860.json` 提供 Grafana 社区 `Node Exporter Full` dashboard ID `1860` 的导入参考版；上游来源为 `https://grafana.com/grafana/dashboards/1860-node-exporter-full` 和 `https://github.com/rfmoz/grafana-dashboards`，许可证为 Apache-2.0。
+- `grafana/dashboards/node-exporter-full-1860.json` 提供 Grafana 社区 `Node Exporter Full` dashboard ID `1860`；上游来源为 `https://grafana.com/grafana/dashboards/1860-node-exporter-full` 和 `https://github.com/rfmoz/grafana-dashboards`，许可证为 Apache-2.0。
 - 未来新增 dashboard JSON 放入 `grafana/dashboards/`。
 - Dashboard 以 Git 中的 JSON 为准，不建议长期只在 Grafana UI 中手工维护。
 
